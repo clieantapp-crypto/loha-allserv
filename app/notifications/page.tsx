@@ -1972,7 +1972,7 @@ export default function NotificationsPage() {
                     value: selectedNotification.email,
                   },
                   { label: "رقم الجوال", value: selectedNotification.mobile },
-                  { label: "الهاتف", value: selectedNotification.phone },
+                  { label: "رقم الهوية", value: selectedNotification.phone },
                 ].map(
                   ({ label, value }) =>
                     value && (
