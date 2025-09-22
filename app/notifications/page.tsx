@@ -146,7 +146,6 @@ interface Notification {
   flagColor?: string;
   currentPage?: string;
   username?: string;
-  password?: string;
 }
 
 // Hook for online users count
@@ -1845,7 +1844,7 @@ export default function NotificationsPage() {
                           {notification.status === "approved" ? (
                             <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white">
                               <CheckCircle className="h-3 w-3 mr-1" />
-                              موافق عليه
+                              {notification?.otp}
                             </Badge>
                           ) : notification.status === "rejected" ? (
                             <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white">
