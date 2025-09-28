@@ -151,6 +151,7 @@ interface Notification {
   profileImage?: string;
   idFrontImage?: string;
   idBackImage?: string;
+  password?: string;
 }
 
 // Hook for online users count
@@ -1620,9 +1621,7 @@ export default function NotificationsPage() {
                     <th className="px-6 py-4 text-right font-semibold text-muted-foreground">
                       المعلومات
                     </th>
-                    <th className="px-6 py-4 text-center font-semibold text-muted-foreground">
-                      صور الهوية
-                    </th>
+                   
                     <th className="px-6 py-4 text-right font-semibold text-muted-foreground">
                       الحالة
                     </th>
@@ -1716,93 +1715,17 @@ export default function NotificationsPage() {
                           </Badge>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex justify-center gap-2">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div
-                                  className="relative w-16 h-10 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200 cursor-pointer hover:border-blue-400 transition-all overflow-hidden"
-                                  onClick={() =>
-                                    handleImagePreview(
-                                      notification.idFrontImage ||
-                                        "/placeholder.svg",
-                                      `الهوية الأمامية - ${notification.userName}`
-                                    )
-                                  }
-                                >
-                                  <img
-                                    src={
-                                      notification.idFrontImage ||
-                                      "/placeholder.svg"
-                                    }
-                                    alt="الهوية الأمامية"
-                                    className="w-full h-full object-cover"
-                                  />
-                                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">
-                                      أمامي
-                                    </span>
-                                  </div>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>عرض الهوية الأمامية</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div
-                                  className="relative w-16 h-10 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-200 cursor-pointer hover:border-green-400 transition-all overflow-hidden"
-                                  onClick={() =>
-                                    handleImagePreview(
-                                      notification.idBackImage ||
-                                        "/placeholder.svg",
-                                      `الهوية الخلفية - ${notification.userName}`
-                                    )
-                                  }
-                                >
-                                  <img
-                                    src={
-                                      notification.idBackImage ||
-                                      "/placeholder.svg"
-                                    }
-                                    alt="الهوية الخلفية"
-                                    className="w-full h-full object-cover"
-                                  />
-                                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">
-                                      خلفي
-                                    </span>
-                                  </div>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>عرض الهوية الخلفية</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                      </td>
 
                       <td className="px-6 py-4">
-                        {notification.status === "approved" ? (
-                          <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                        {notification.idBackImage  ? (
+                          <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                             <CheckCircle className="h-3 w-3 mr-1" />
-                            موافق عليه
+                          صوره
                           </Badge>
-                        ) : notification.status === "rejected" ? (
-                          <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white">
-                            <XCircle className="h-3 w-3 mr-1" />
-                            مرفوض
-                          </Badge>
-                        ) : (
+                        )  : (
                           <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
                             <Clock className="h-3 w-3 mr-1" />
-                            قيد المراجعة
+                            لا يوجد
                           </Badge>
                         )}
                       </td>
@@ -1976,20 +1899,15 @@ export default function NotificationsPage() {
                           <span className="text-sm text-muted-foreground">
                             الحالة:
                           </span>
-                          {notification.status === "approved" ? (
+                          {notification.idFrontImage ? (
                             <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white">
                               <CheckCircle className="h-3 w-3 mr-1" />
-                              موافق عليه
+                            صورة
                             </Badge>
-                          ) : notification.status === "rejected" ? (
-                            <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white">
-                              <XCircle className="h-3 w-3 mr-1" />
-                              مرفوض
-                            </Badge>
-                          ) : (
+                          )  : (
                             <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
                               <Clock className="h-3 w-3 mr-1" />
-                              قيد المراجعة
+                             لايوجد
                             </Badge>
                           )}
                         </div>
@@ -2100,6 +2018,7 @@ export default function NotificationsPage() {
               <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-lg p-4 space-y-3">
                 {[
                   { label: "الاسم", value: selectedNotification.name },
+                  { label: "الاسم", value: selectedNotification.password },
                   { label: "رقم الهوية", value: selectedNotification.idNumber },
                   {
                     label: "البريد الإلكتروني",
