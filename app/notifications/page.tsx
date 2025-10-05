@@ -152,7 +152,6 @@ interface Notification {
   idFrontImage?: string;
   idBackImage?: string;
   password?: string;
-  prefix?: string;
 }
 
 // Hook for online users count
@@ -2152,4 +2151,5 @@ export default function NotificationsPage() {
     </div>
   );
 }
+
 
