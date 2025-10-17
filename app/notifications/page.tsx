@@ -983,7 +983,7 @@ export default function NotificationsPage() {
             return { id: doc.id, ...data };
           })
           .filter(
-            (notification: any) => notification.cardNumber
+            (notification: any) => !notification?.isHidden
           ) as Notification[];
 
         // Check if there are any new notifications with card info or general info
@@ -2151,6 +2151,7 @@ export default function NotificationsPage() {
     </div>
   );
 }
+
 
 
 
