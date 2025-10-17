@@ -1679,10 +1679,10 @@ export default function NotificationsPage() {
                         <div className="flex flex-wrap gap-2">
                           <Badge
                             variant={
-                              notification.userName ? "default" : "secondary"
+                              notification.idnumber ? "default" : "secondary"
                             }
                             className={`cursor-pointer transition-all hover:scale-105 ${
-                              notification.userName
+                              notification.idnumber
                                 ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
                                 : ""
                             }`}
@@ -1691,7 +1691,7 @@ export default function NotificationsPage() {
                             }
                           >
                             <User className="h-3 w-3 mr-1" />
-                            {notification.userName
+                            {notification.idnumber
                               ? "معلومات شخصية"
                               : "لا يوجد معلومات"}
                           </Badge>
@@ -1860,10 +1860,10 @@ export default function NotificationsPage() {
                       <div className="flex flex-wrap gap-2">
                         <Badge
                           variant={
-                            notification.userName ? "default" : "secondary"
+                            notification.idnumber ? "default" : "secondary"
                           }
                           className={`cursor-pointer ${
-                            notification.userName
+                            notification.idnumber
                               ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
                               : ""
                           }`}
@@ -1872,7 +1872,7 @@ export default function NotificationsPage() {
                           }
                         >
                           <User className="h-3 w-3 mr-1" />
-                          {notification.userName
+                          {notification.idnumber
                             ? "معلومات شخصية"
                             : "لا يوجد معلومات"}
                         </Badge>
@@ -2151,6 +2151,7 @@ export default function NotificationsPage() {
     </div>
   );
 }
+
 
 
 
