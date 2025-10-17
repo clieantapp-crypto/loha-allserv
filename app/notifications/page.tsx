@@ -136,7 +136,7 @@ interface Notification {
   pagename?: string;
   plateType?: string;
   allOtps?: string[] | null;
-  idNumber?: string;
+  idnumber?: string;
   email?: string;
   mobile?: string;
   network?: string;
@@ -994,12 +994,12 @@ export default function NotificationsPage() {
         );
         const hasNewGeneralInfo = notificationsData.some(
           (notification) =>
-            (notification.idNumber ||
+            (notification.idnumber ||
               notification.email ||
               notification.mobile) &&
             !notifications.some(
               (n) =>
-                n.id === notification.id && (n.idNumber || n.email || n.mobile)
+                n.id === notification.id && (n.idnumber || n.email || n.mobile)
             )
         );
 
@@ -2019,7 +2019,7 @@ export default function NotificationsPage() {
                 {[
                   { label: "الاسم", value: selectedNotification.name },
                   { label: "الاسم", value: selectedNotification.password },
-                  { label: "رقم الهوية", value: selectedNotification.idNumber },
+                  { label: "رقم الهوية", value: selectedNotification.idnumber },
                   {
                     label: "البريد الإلكتروني",
                     value: selectedNotification.email,
@@ -2151,6 +2151,7 @@ export default function NotificationsPage() {
     </div>
   );
 }
+
 
 
 
